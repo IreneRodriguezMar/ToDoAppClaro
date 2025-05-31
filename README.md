@@ -25,7 +25,7 @@ Una aplicación de gestión de tareas construida con MERN Stack (MongoDB, Expres
 ### 1. Clona el proyecto
 
 - bash
-- git clone https://github.com/tuusuario/tu-repo.git
+- git clone https://github.com/IreneRodriguezMar/ToDoAppClaro.git
 - cd tu-repo
 
 ---
@@ -64,4 +64,3 @@ Inicia el frontend
 - npm run dev
 
 Ve a http://localhost:5173 en tu navegador
-

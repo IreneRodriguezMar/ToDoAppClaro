@@ -54,6 +54,10 @@ textarea {
 
   .filters {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
   }
 
   form.form-edit-task {
@@ -62,6 +66,23 @@ textarea {
     border-radius: 8px;
     padding: 1rem;
     margin-top: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+
+    input {
+      width: 100%;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+
+      button {
+        font-size: 1rem;
+      }
+    }
   }
 
   form.form-task {
@@ -210,7 +231,7 @@ ul {
   }
 
   .task-item {
-    background: #ffff;
+    background: #fff;
     display: flex;
     flex-direction: column;
     border: 1px solid #49b2cb;
@@ -218,16 +239,131 @@ ul {
     .task-father {
       width: 100%;
       display: flex;
-      align-items: center;
-      justify-content: space-around;
-      margin-top: 20px;
-      padding-bottom: 20px;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1rem;
       border-bottom: 1px solid #49b2cb;
+      box-sizing: border-box;
+
+      .text-content {
+        word-break: break-word;
+        text-align: left;
+        font-weight: bold;
+
+        .task-completed {
+          text-decoration: line-through;
+          color: #888;
+          opacity: 0.7;
+        }
+      }
+
+      .task-bottom {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+
+        .status {
+          font-size: 0.95rem;
+          color: $text-color;
+        }
+
+        .actions {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+
+          button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+
+            &:hover {
+              transform: scale(1.1);
+            }
+
+            &:focus {
+              outline: 2px dashed $primary-color;
+              outline-offset: 3px;
+            }
+          }
+        }
+      }
     }
-    .subtask-section {
-        margin-top: 20px;
+
+.subtask-section {
+  margin-top: 20px;
+  padding: 0 1rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
+
+  input {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 0.5rem;
+    box-sizing: border-box;
+  }
+
+  .list-subtasks {
+    li {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      align-items: flex-start;
+      background-color: #f9f9f9;
+      border-radius: 6px;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      width: 100%;
+      box-sizing: border-box;
+
+      .subtask-text {
+        word-break: break-word;
+        font-weight: bold;
+        text-align: left;
+
+        &.task-completed {
+          text-decoration: line-through;
+          color: #888;
+          opacity: 0.7;
+        }
+      }
+
+      .subtask-status {
+        font-size: 0.9rem;
+        color: $text-color;
         width: 100%;
+      }
+
+      .subtask-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        justify-content: center;
+        width: 100%;
+
+        button {
+          font-size: 1rem;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+
+          &:hover {
+            transform: scale(1.1);
+          }
+
+          &:focus {
+            outline: 2px dashed $primary-color;
+            outline-offset: 3px;
+          }
+        }
+      }
     }
+  }
+}
+
   }
 }
 

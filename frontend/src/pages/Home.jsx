@@ -20,6 +20,7 @@ const Home = () => {
   const [editText, setEditText] = useState('');
   const [subtaskInput, setSubtaskInput] = useState({});
   const [editingSubtask, setEditingSubtask] = useState({});
+  const [recentlyUpdated, setRecentlyUpdated] = useState({});
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -104,6 +105,10 @@ const Home = () => {
       const { data: updated } = await updateSubtask(taskId, subtaskId, { title: newTitle });
       setTasks(prev => prev.map(t => (t._id === updated._id ? updated : t)));
       setEditingSubtask(prev => ({ ...prev, [`${taskId}-${subtaskId}`]: undefined }));
+      setRecentlyUpdated(prev => ({ ...prev, [`${taskId}-${subtaskId}`]: true }));
+      setTimeout(() => {
+        setRecentlyUpdated(prev => ({ ...prev, [`${taskId}-${subtaskId}`]: false }));
+      }, 1200);
     } catch (error) {
       console.error("Error al editar subtarea:", error);
     }
@@ -146,21 +151,7 @@ const Home = () => {
         <button className="button" type="submit">Agregar tarea</button>
       </form>
 
-      {editingTask && (
-        <form onSubmit={handleEditSubmit} className="form-edit-task">
-          <input
-            type="text"
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-          />
-          <button className="button" type="submit">Guardar</button>
-          <button type="button" onClick={cancelEdit}>Cancelar</button>
-        </form>
-      )}
-
-      <hr />
-
-      <div className='filters'>
+      <div className="filters">
         <label>Filtrar tareas: </label>
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
           <option value="todas">Todas</option>
@@ -172,19 +163,43 @@ const Home = () => {
       {filteredTasks.length === 0 ? (
         <p>No hay tareas en esta categoría.</p>
       ) : (
-        <ul className='list-tasks'>
-          {filteredTasks.map((task) => (
-            <li key={task._id} className='task-item'>
+        <ul className="list-tasks">
+          {filteredTasks.map(task => (
+            <li key={task._id} className="task-item">
               <div className="task-father">
-                <strong className={task.status === "completada" ? "task-completed" : ""}>
-                    {task.title}
-                  </strong> – {task.status}
-                  <button onClick={() => toggleStatus(task)}>
-                    {task.status === "pendiente" ? "✅" : "↩️"}
-                  </button>
-                  <button onClick={() => startEditing(task)}>✏️</button>
-                  <button onClick={() => handleDelete(task._id)}>🗑️</button>
+                {editingTask?._id === task._id ? (
+                  <form onSubmit={handleEditSubmit} className="form-edit-task" style={{ width: "100%" }}>
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    />
+                    <div className="actions">
+                      <button className="button" type="submit">Guardar</button>
+                      <button type="button" onClick={cancelEdit}>Cancelar</button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="text-content">
+                      <strong className={task.status === "completada" ? "task-completed" : ""}>
+                        {task.title}
+                      </strong>
+                    </div>
+                    <div className="task-bottom">
+                      <div className="status">{task.status}</div>
+                      <div className="actions">
+                        <button onClick={() => toggleStatus(task)}>
+                          {task.status === "pendiente" ? "✅" : "↩️"}
+                        </button>
+                        <button onClick={() => startEditing(task)}>✏️</button>
+                        <button onClick={() => handleDelete(task._id)}>🗑️</button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
+
               <div className="subtask-section">
                 <input
                   type="text"
@@ -201,67 +216,73 @@ const Home = () => {
                   Agregar subtarea
                 </button>
 
-                <ul className='list-subtasks'>
-                  {task.subtasks?.map((sub) => (
-                    <li key={sub._id}>
-                      {editingSubtask[`${task._id}-${sub._id}`] !== undefined ? (
-                        <>
-                          <input
-                            type="text"
-                            value={editingSubtask[`${task._id}-${sub._id}`]}
-                            onChange={(e) =>
-                              setEditingSubtask(prev => ({
-                                ...prev,
-                                [`${task._id}-${sub._id}`]: e.target.value
-                              }))
-                            }
-                          />
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleEditSubtask(task._id, sub._id, editingSubtask[`${task._id}-${sub._id}`])
-                            }
-                          >
-                            Guardar
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setEditingSubtask(prev => ({
-                                ...prev,
-                                [`${task._id}-${sub._id}`]: undefined
-                              }))
-                            }
-                          >
-                            Cancelar
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <span className={sub.status === "completada" ? "task-completed" : ""}>
-                            {sub.title}
-                          </span> – {sub.status}
-                          <button
-                            type="button"
-                            onClick={() => handleToggleSubtaskStatus(task._id, sub._id)}
-                          >
-                            {sub.status === "pendiente" ? "✅" : "↩️"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setEditingSubtask(prev => ({ ...prev, [`${task._id}-${sub._id}`]: sub.title }))
-                            }
-                          >
-                            ✏️
-                          </button>
-                          <button type="button" onClick={() => handleDeleteSubtask(task._id, sub._id)}>
-                            🗑️
-                          </button>
-                        </>
-                      )}
-                    </li>
-                  ))}
+                <ul className="list-subtasks">
+                  {task.subtasks?.map((sub) => {
+                    const isEditing = editingSubtask[`${task._id}-${sub._id}`] !== undefined;
+                    const isUpdated = recentlyUpdated[`${task._id}-${sub._id}`];
+                    return (
+                      <li key={sub._id} className={isUpdated ? "subtask-updated" : ""}>
+                        {isEditing ? (
+                          <>
+                            <input
+                              type="text"
+                              value={editingSubtask[`${task._id}-${sub._id}`]}
+                              onChange={(e) =>
+                                setEditingSubtask(prev => ({
+                                  ...prev,
+                                  [`${task._id}-${sub._id}`]: e.target.value
+                                }))
+                              }
+                            />
+                            <div className="subtask-actions">
+                              <button
+                                onClick={() =>
+                                  handleEditSubtask(task._id, sub._id, editingSubtask[`${task._id}-${sub._id}`])
+                                }
+                              >
+                                Guardar
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setEditingSubtask(prev => ({
+                                    ...prev,
+                                    [`${task._id}-${sub._id}`]: undefined
+                                  }))
+                                }
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <span className={`subtask-text ${sub.status === "completada" ? "task-completed" : ""}`}>
+                              {sub.title}
+                            </span>
+                            <div className="subtask-status">{sub.status}</div>
+                            <div className="subtask-actions">
+                              <button onClick={() => handleToggleSubtaskStatus(task._id, sub._id)}>
+                                {sub.status === "pendiente" ? "✅" : "↩️"}
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setEditingSubtask(prev => ({
+                                    ...prev,
+                                    [`${task._id}-${sub._id}`]: sub.title
+                                  }))
+                                }
+                              >
+                                ✏️
+                              </button>
+                              <button onClick={() => handleDeleteSubtask(task._id, sub._id)}>
+                                🗑️
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </li>
